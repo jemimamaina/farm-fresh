@@ -206,6 +206,9 @@ function renderFromHash() {
 
 export function renderNav() {
   const user = getCurrentUser();
+  const cartItems = loadCart();
+  console.log(cartItems);
+  const cartCount = cartItems.reduce((c, item) => c + item.qty, 0);
   const nav = document.createElement('nav');
   nav.id = 'nav-links';
 
@@ -213,8 +216,8 @@ export function renderNav() {
     ? user.role === 'farmer'
       ? '<a href="#farmer">Farmer</a>'
       : user.role === 'admin'
-      ? '<a href="#admin">Admin</a>'
-      : ''
+        ? '<a href="#admin">Admin</a>'
+        : ''
     : '';
 
   const authLinks = user
@@ -231,7 +234,7 @@ export function renderNav() {
       <div class="nav-links">
         <a href="#home">Home</a>
         <a href="#marketplace">Browse</a>
-        <a href="#cart">Cart</a>
+        <a href="#cart">Cart  ${cartCount > 0 ? `(${cartCount > 9 ? '9+' : cartCount})` : ''}</a>
         ${roleLink}
         ${authLinks}
       </div>
@@ -427,7 +430,7 @@ function renderProductGridHTML(items) {
 
 function attachProductClickHandlers() {
   const productCards = document.querySelectorAll('.product[data-product-id]');
-  productCards.forEach(card => {
+  productCards.forEach((card) => {
     card.addEventListener('click', (e) => {
       const productId = card.dataset.productId;
       if (productId) {
@@ -509,7 +512,9 @@ function loadMarketplaceProducts() {
     let filtered = [...items];
 
     if (MARKETPLACE_STATE.category && MARKETPLACE_STATE.category !== 'All') {
-      filtered = filtered.filter((prod) => prod.category === MARKETPLACE_STATE.category);
+      filtered = filtered.filter(
+        (prod) => prod.category === MARKETPLACE_STATE.category,
+      );
     }
 
     if (MARKETPLACE_STATE.query) {
@@ -523,7 +528,8 @@ function loadMarketplaceProducts() {
     }
 
     if (filtered.length === 0) {
-      container.innerHTML = '<p>No products match your search or filter. Try another keyword or category.</p>';
+      container.innerHTML =
+        '<p>No products match your search or filter. Try another keyword or category.</p>';
       return;
     }
 
@@ -735,7 +741,7 @@ function addToCart(product, quantity = 1) {
       name: product.name,
       price: product.price,
       qty: quantity,
-      image: product.image
+      image: product.image,
     });
   }
   saveCart(cart);
@@ -755,16 +761,21 @@ function loadChatMessages(productId, farmerId) {
   const chatMessages = document.getElementById('chat-messages');
 
   if (messages.length === 0) {
-    chatMessages.innerHTML = '<p class="no-messages">Start a conversation with the farmer!</p>';
+    chatMessages.innerHTML =
+      '<p class="no-messages">Start a conversation with the farmer!</p>';
     return;
   }
 
-  chatMessages.innerHTML = messages.map(msg => `
+  chatMessages.innerHTML = messages
+    .map(
+      (msg) => `
     <div class="chat-message ${msg.sender === 'consumer' ? 'consumer' : 'farmer'}">
       <div class="message-content">${msg.text}</div>
       <div class="message-time">${new Date(msg.timestamp).toLocaleString()}</div>
     </div>
-  `).join('');
+  `,
+    )
+    .join('');
 
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -784,7 +795,7 @@ function sendChatMessage(productId, farmerId, message) {
     sender: user.role === 'consumer' ? 'consumer' : 'farmer',
     senderName: user.name,
     text: message,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 
   messages.push(newMessage);
@@ -795,7 +806,7 @@ function sendChatMessage(productId, farmerId, message) {
 
 function updateCartQuantity(productId, newQty) {
   const cart = loadCart();
-  const item = cart.find(c => c.id === productId);
+  const item = cart.find((c) => c.id === productId);
   if (item) {
     item.qty = newQty;
     saveCart(cart);
@@ -805,7 +816,7 @@ function updateCartQuantity(productId, newQty) {
 
 function removeFromCart(productId) {
   const cart = loadCart();
-  const filteredCart = cart.filter(c => c.id !== productId);
+  const filteredCart = cart.filter((c) => c.id !== productId);
   saveCart(filteredCart);
   renderCart(); // Re-render cart
 }
@@ -823,13 +834,15 @@ export function renderCart() {
     return;
   }
 
-  const total = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
 
   main.innerHTML = `
     <div class="cart-container">
       <h2>Your Cart</h2>
       <div class="cart-items">
-        ${items.map(item => `
+        ${items
+          .map(
+            (item) => `
           <div class="cart-item">
             <img src="${item.image}" alt="${item.name}" class="cart-item-image">
             <div class="cart-item-details">
@@ -845,7 +858,9 @@ export function renderCart() {
               <button class="remove-item" data-product-id="${item.id}">Remove</button>
             </div>
           </div>
-        `).join('')}
+        `,
+          )
+          .join('')}
       </div>
       <div class="cart-summary">
         <h3>Total: KES ${total}</h3>
@@ -855,15 +870,17 @@ export function renderCart() {
   `;
 
   // Add event listeners for quantity changes and remove buttons
-  document.querySelectorAll('.cart-item input[type="number"]').forEach(input => {
-    input.addEventListener('change', (e) => {
-      const productId = parseInt(e.target.dataset.productId);
-      const newQty = parseInt(e.target.value);
-      updateCartQuantity(productId, newQty);
+  document
+    .querySelectorAll('.cart-item input[type="number"]')
+    .forEach((input) => {
+      input.addEventListener('change', (e) => {
+        const productId = parseInt(e.target.dataset.productId);
+        const newQty = parseInt(e.target.value);
+        updateCartQuantity(productId, newQty);
+      });
     });
-  });
 
-  document.querySelectorAll('.remove-item').forEach(btn => {
+  document.querySelectorAll('.remove-item').forEach((btn) => {
     btn.addEventListener('click', (e) => {
       const productId = parseInt(e.target.dataset.productId);
       removeFromCart(productId);
@@ -871,7 +888,9 @@ export function renderCart() {
   });
 
   document.getElementById('checkout-btn').addEventListener('click', () => {
-    notify.info('Checkout functionality will be implemented with M-Pesa integration');
+    notify.info(
+      'Checkout functionality will be implemented with M-Pesa integration',
+    );
   });
 }
 
@@ -885,7 +904,7 @@ export function renderProductDetail(id) {
 
     // Fetch farmer details
     fetchUsers().then((users) => {
-      const farmer = users.find(u => u.id === prod.farmerId);
+      const farmer = users.find((u) => u.id === prod.farmerId);
 
       main.innerHTML = `
         <div class="product-detail">
@@ -906,7 +925,9 @@ export function renderProductDetail(id) {
             </div>
           </div>
 
-          ${farmer ? `
+          ${
+            farmer
+              ? `
           <div class="farmer-info">
             <h3>About the Farmer</h3>
             <div class="farmer-details">
@@ -921,7 +942,9 @@ export function renderProductDetail(id) {
               </div>
             </div>
           </div>
-          ` : ''}
+          `
+              : ''
+          }
 
           <div id="chat-modal" class="chat-modal" style="display: none;">
             <div class="chat-modal-content">
@@ -941,7 +964,8 @@ export function renderProductDetail(id) {
 
       // Add to cart functionality
       document.getElementById('add-to-cart').addEventListener('click', () => {
-        const quantity = parseInt(document.getElementById('quantity').value) || 1;
+        const quantity =
+          parseInt(document.getElementById('quantity').value) || 1;
         addToCart(prod, quantity);
       });
 
@@ -1059,9 +1083,11 @@ export function renderFarmerDashboard() {
     hideProductForm();
   });
 
-  document.getElementById('farmer-product-form').addEventListener('submit', (e) => {
-    handleProductSubmit(e, user.id);
-  });
+  document
+    .getElementById('farmer-product-form')
+    .addEventListener('submit', (e) => {
+      handleProductSubmit(e, user.id);
+    });
 }
 
 function loadFarmerProducts(farmerId) {
@@ -1069,17 +1095,22 @@ function loadFarmerProducts(farmerId) {
 
   fetchProducts().then((allProducts) => {
     // Get farmer's products from static data and localStorage
-    const staticProducts = allProducts.filter(p => p.farmerId === farmerId);
-    const farmerProducts = JSON.parse(localStorage.getItem(`farmer_products_${farmerId}`) || '[]');
+    const staticProducts = allProducts.filter((p) => p.farmerId === farmerId);
+    const farmerProducts = JSON.parse(
+      localStorage.getItem(`farmer_products_${farmerId}`) || '[]',
+    );
 
-    const allFarmerProducts = [,...farmerProducts];
+    const allFarmerProducts = [, ...farmerProducts];
 
     if (allFarmerProducts.length === 0) {
-      container.innerHTML = '<p>You haven\'t added any products yet. Click "Add New Product" to get started.</p>';
+      container.innerHTML =
+        '<p>You haven\'t added any products yet. Click "Add New Product" to get started.</p>';
       return;
     }
 
-    container.innerHTML = allFarmerProducts.map(product => `
+    container.innerHTML = allFarmerProducts
+      .map(
+        (product) => `
       <div class="farmer-product-card">
         <img src="${product.image || 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=200&h=200&fit=crop'}" alt="${product.name}" class="product-thumb">
         <div class="product-info">
@@ -1094,17 +1125,19 @@ function loadFarmerProducts(farmerId) {
           <button class="btn btn-danger delete-btn" data-product-id="${product.id}">Delete</button>
         </div>
       </div>
-    `).join('');
+    `,
+      )
+      .join('');
 
     // Add event listeners for edit and delete buttons
-    container.querySelectorAll('.edit-btn').forEach(btn => {
+    container.querySelectorAll('.edit-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const productId = parseInt(e.target.dataset.productId);
         editProduct(productId, farmerId);
       });
     });
 
-    container.querySelectorAll('.delete-btn').forEach(btn => {
+    container.querySelectorAll('.delete-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const productId = parseInt(e.target.dataset.productId);
         deleteProduct(productId, farmerId);
@@ -1125,7 +1158,8 @@ function showProductForm(product = null) {
     document.getElementById('product-category').value = product.category;
     document.getElementById('product-price').value = product.price;
     document.getElementById('product-quantity').value = product.quantity;
-    document.getElementById('product-description').value = product.description || '';
+    document.getElementById('product-description').value =
+      product.description || '';
   } else {
     formTitle.textContent = 'Add New Product';
     productForm.reset();
@@ -1154,7 +1188,8 @@ function handleProductSubmit(e, farmerId) {
     price: parseInt(formData.get('price')),
     quantity: parseInt(formData.get('quantity')),
     description: formData.get('description'),
-    image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop' // Default image
+    image:
+      'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop', // Default image
   };
 
   if (productId) {
@@ -1170,26 +1205,41 @@ function handleProductSubmit(e, farmerId) {
 }
 
 function addFarmerProduct(product, farmerId) {
-  const farmerProducts = JSON.parse(localStorage.getItem(`farmer_products_${farmerId}`) || '[]');
+  const farmerProducts = JSON.parse(
+    localStorage.getItem(`farmer_products_${farmerId}`) || '[]',
+  );
   farmerProducts.push(product);
-  localStorage.setItem(`farmer_products_${farmerId}`, JSON.stringify(farmerProducts));
+  localStorage.setItem(
+    `farmer_products_${farmerId}`,
+    JSON.stringify(farmerProducts),
+  );
 }
 
 function updateFarmerProduct(updatedProduct, farmerId) {
-  const farmerProducts = JSON.parse(localStorage.getItem(`farmer_products_${farmerId}`) || '[]');
-  const index = farmerProducts.findIndex(p => p.id === updatedProduct.id);
+  const farmerProducts = JSON.parse(
+    localStorage.getItem(`farmer_products_${farmerId}`) || '[]',
+  );
+  const index = farmerProducts.findIndex((p) => p.id === updatedProduct.id);
 
   if (index !== -1) {
     farmerProducts[index] = updatedProduct;
-    localStorage.setItem(`farmer_products_${farmerId}`, JSON.stringify(farmerProducts));
+    localStorage.setItem(
+      `farmer_products_${farmerId}`,
+      JSON.stringify(farmerProducts),
+    );
   }
 }
 
 function deleteProduct(productId, farmerId) {
   notify.confirm('Are you sure you want to delete this product?', () => {
-    const farmerProducts = JSON.parse(localStorage.getItem(`farmer_products_${farmerId}`) || '[]');
-    const filteredProducts = farmerProducts.filter(p => p.id !== productId);
-    localStorage.setItem(`farmer_products_${farmerId}`, JSON.stringify(filteredProducts));
+    const farmerProducts = JSON.parse(
+      localStorage.getItem(`farmer_products_${farmerId}`) || '[]',
+    );
+    const filteredProducts = farmerProducts.filter((p) => p.id !== productId);
+    localStorage.setItem(
+      `farmer_products_${farmerId}`,
+      JSON.stringify(filteredProducts),
+    );
     loadFarmerProducts(farmerId);
     notify.success('Product deleted successfully');
   });
@@ -1197,13 +1247,17 @@ function deleteProduct(productId, farmerId) {
 
 function editProduct(productId, farmerId) {
   // First check localStorage products
-  let farmerProducts = JSON.parse(localStorage.getItem(`farmer_products_${farmerId}`) || '[]');
-  let product = farmerProducts.find(p => p.id === productId);
+  let farmerProducts = JSON.parse(
+    localStorage.getItem(`farmer_products_${farmerId}`) || '[]',
+  );
+  let product = farmerProducts.find((p) => p.id === productId);
 
   // If not found in localStorage, check static products
   if (!product) {
     fetchProducts().then((allProducts) => {
-      product = allProducts.find(p => p.id === productId && p.farmerId === farmerId);
+      product = allProducts.find(
+        (p) => p.id === productId && p.farmerId === farmerId,
+      );
       if (product) {
         showProductForm(product);
       }
