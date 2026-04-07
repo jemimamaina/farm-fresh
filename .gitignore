@@ -1,0 +1,17 @@
+# This is a comment
+# Ignore specific files
+secrets.txt
+.env
+
+# Ignore entire directories
+node_modules/
+dist/
+temp/
+
+# Ignore files by extension
+*.log
+*.tmp
+*.exe
+
+# Ignore everything in a folder except a specific file
+!config/keep_me.txt
