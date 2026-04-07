@@ -14,6 +14,103 @@ const MARKETPLACE_STATE = {
 };
 let routingInitialized = false;
 
+// ============ NOTIFICATION COMPONENT ============
+class Notification {
+  constructor() {
+    this.container = null;
+    this.initContainer();
+  }
+
+  initContainer() {
+    if (!document.getElementById('notification-container')) {
+      this.container = document.createElement('div');
+      this.container.id = 'notification-container';
+      document.body.appendChild(this.container);
+    } else {
+      this.container = document.getElementById('notification-container');
+    }
+  }
+
+  show(message, type = 'info', duration = 3000) {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+      <div class="notification-content">
+        <span class="notification-message">${message}</span>
+        <button class="notification-close">&times;</button>
+      </div>
+    `;
+
+    this.container.appendChild(notification);
+
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', () => {
+      notification.remove();
+    });
+
+    if (duration > 0) {
+      setTimeout(() => {
+        notification.remove();
+      }, duration);
+    }
+
+    return notification;
+  }
+
+  success(message, duration = 3000) {
+    return this.show(message, 'success', duration);
+  }
+
+  error(message, duration = 3000) {
+    return this.show(message, 'error', duration);
+  }
+
+  info(message, duration = 3000) {
+    return this.show(message, 'info', duration);
+  }
+
+  warning(message, duration = 3000) {
+    return this.show(message, 'warning', duration);
+  }
+
+  confirm(message, onConfirm, onCancel = null) {
+    const modal = document.createElement('div');
+    modal.className = 'confirm-modal';
+    modal.innerHTML = `
+      <div class="confirm-modal-content">
+        <div class="confirm-modal-message">${message}</div>
+        <div class="confirm-modal-buttons">
+          <button class="confirm-btn-cancel btn btn-secondary">Cancel</button>
+          <button class="confirm-btn-confirm btn btn-primary">Confirm</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const cancelBtn = modal.querySelector('.confirm-btn-cancel');
+    const confirmBtn = modal.querySelector('.confirm-btn-confirm');
+
+    const cleanup = () => {
+      modal.remove();
+    };
+
+    cancelBtn.addEventListener('click', () => {
+      if (onCancel) onCancel();
+      cleanup();
+    });
+
+    confirmBtn.addEventListener('click', () => {
+      onConfirm();
+      cleanup();
+    });
+
+    return modal;
+  }
+}
+
+const notify = new Notification();
+
 export function getCurrentUser() {
   try {
     const raw = localStorage.getItem(CURRENT_USER_KEY);
@@ -304,6 +401,7 @@ function loadProducts() {
   fetchProducts().then((items) => {
     const featured = items.slice(0, 4);
     container.innerHTML = renderProductGridHTML(featured);
+    attachProductClickHandlers();
   });
 }
 
@@ -315,9 +413,9 @@ function renderProductGridHTML(items) {
   return items
     .map(
       (prod) => `
-      <div class="product">
+      <div class="product" data-product-id="${prod.id}" style="cursor: pointer;">
         <img src="${prod.image || 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=300&fit=crop'}" alt="${prod.name}" class="product-image">
-        <h3><a href="#product/${prod.id}">${prod.name}</a></h3>
+        <h3>${prod.name}</h3>
         <p><strong>Category:</strong> ${prod.category}</p>
         <p><strong>Price:</strong> KES ${prod.price}</p>
         <p class="description">${prod.description || ''}</p>
@@ -325,6 +423,18 @@ function renderProductGridHTML(items) {
     `,
     )
     .join('');
+}
+
+function attachProductClickHandlers() {
+  const productCards = document.querySelectorAll('.product[data-product-id]');
+  productCards.forEach(card => {
+    card.addEventListener('click', (e) => {
+      const productId = card.dataset.productId;
+      if (productId) {
+        window.location.hash = `#product/${productId}`;
+      }
+    });
+  });
 }
 
 export function renderMarketplace() {
@@ -418,6 +528,7 @@ function loadMarketplaceProducts() {
     }
 
     container.innerHTML = renderProductGridHTML(filtered);
+    attachProductClickHandlers();
   });
 }
 
@@ -628,7 +739,7 @@ function addToCart(product, quantity = 1) {
     });
   }
   saveCart(cart);
-  alert(`Added ${quantity} ${product.name}(s) to cart`);
+  notify.success(`Added ${quantity} ${product.name}(s) to cart`);
 }
 
 // Chat functionality
@@ -661,7 +772,7 @@ function loadChatMessages(productId, farmerId) {
 function sendChatMessage(productId, farmerId, message) {
   const user = getCurrentUser();
   if (!user) {
-    alert('Please log in to chat with farmers');
+    notify.warning('Please log in to chat with farmers');
     return;
   }
 
@@ -760,7 +871,7 @@ export function renderCart() {
   });
 
   document.getElementById('checkout-btn').addEventListener('click', () => {
-    alert('Checkout functionality will be implemented with M-Pesa integration');
+    notify.info('Checkout functionality will be implemented with M-Pesa integration');
   });
 }
 
@@ -1075,15 +1186,13 @@ function updateFarmerProduct(updatedProduct, farmerId) {
 }
 
 function deleteProduct(productId, farmerId) {
-  if (!confirm('Are you sure you want to delete this product?')) {
-    return;
-  }
-
-  const farmerProducts = JSON.parse(localStorage.getItem(`farmer_products_${farmerId}`) || '[]');
-  const filteredProducts = farmerProducts.filter(p => p.id !== productId);
-  localStorage.setItem(`farmer_products_${farmerId}`, JSON.stringify(filteredProducts));
-
-  loadFarmerProducts(farmerId);
+  notify.confirm('Are you sure you want to delete this product?', () => {
+    const farmerProducts = JSON.parse(localStorage.getItem(`farmer_products_${farmerId}`) || '[]');
+    const filteredProducts = farmerProducts.filter(p => p.id !== productId);
+    localStorage.setItem(`farmer_products_${farmerId}`, JSON.stringify(filteredProducts));
+    loadFarmerProducts(farmerId);
+    notify.success('Product deleted successfully');
+  });
 }
 
 function editProduct(productId, farmerId) {
@@ -1113,18 +1222,8 @@ export function renderCategoryPage(category) {
       container.innerHTML = '<p>No products found in this category.</p>';
       return;
     }
-    container.innerHTML = items
-      .map(
-        (prod) => `
-      <div class="product">
-        <img src="${prod.image}" alt="${prod.name}" class="product-image">
-        <h3><a href="#product/${prod.id}">${prod.name}</a></h3>
-        <p><strong>Price:</strong> KES ${prod.price}</p>
-        <p>${prod.description || ''}</p>
-      </div>
-    `,
-      )
-      .join('');
+    container.innerHTML = renderProductGridHTML(items);
+    attachProductClickHandlers();
   });
   attachSearchEventListeners();
 }
@@ -1139,18 +1238,8 @@ export function renderSearchResults(query) {
       container.innerHTML = '<p>No products found. Try a different search.</p>';
       return;
     }
-    container.innerHTML = items
-      .map(
-        (prod) => `
-      <div class="product">
-        <img src="${prod.image}" alt="${prod.name}" class="product-image">
-        <h3><a href="#product/${prod.id}">${prod.name}</a></h3>
-        <p><strong>Price:</strong> KES ${prod.price}</p>
-        <p>${prod.description || ''}</p>
-      </div>
-    `,
-      )
-      .join('');
+    container.innerHTML = renderProductGridHTML(items);
+    attachProductClickHandlers();
   });
   attachSearchEventListeners();
 }
