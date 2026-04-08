@@ -908,6 +908,75 @@ form select:focus {
   border: 1px solid #4caf50;
 }
 
+/* ============ ACCESS DENIED PAGE ============ */
+.access-denied-container {
+  width: 100%;
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+}
+
+.access-denied-content {
+  background-color: #f9f9f9;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.access-denied-content h2 {
+  color: #004d00;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.access-denied-content p {
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.access-denied-content .btn {
+  display: inline-block;
+  margin: 0 0.5rem;
+}
+
+/* Tablet and larger screens */
+@media (min-width: 768px) {
+  .access-denied-container {
+    padding: 4rem 1rem;
+  }
+  
+  .access-denied-content {
+    padding: 4rem 3rem;
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 767px) {
+  .access-denied-container {
+    padding: 2rem 0.5rem;
+    min-height: 40vh;
+  }
+  
+  .access-denied-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .access-denied-content h2 {
+    font-size: 1.8rem;
+  }
+  
+  .access-denied-content p {
+    font-size: 1rem;
+  }
+}
+
 /* ============ FARMER DASHBOARD ============ */
 .dashboard-container {
   max-width: 1200px;
@@ -1265,6 +1334,91 @@ form select:focus {
   text-align: center;
   margin-bottom: 2rem;
   color: #004d00;
+}
+
+/* Cart Status Pages (Empty Cart / Not Logged In) */
+.cart-status-container {
+  width: 100%;
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.cart-status-content {
+  background-color: #f9f9f9;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.cart-status-content h2 {
+  color: #004d00;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.cart-status-content p {
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.cart-status-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cart-status-actions .btn {
+  display: inline-block;
+  margin: 0 0.25rem;
+}
+
+/* Tablet and larger screens */
+@media (min-width: 768px) {
+  .cart-status-container {
+    padding: 4rem 1rem;
+  }
+  
+  .cart-status-content {
+    padding: 4rem 3rem;
+  }
+  
+  .cart-status-actions {
+    flex-direction: row;
+  }
+}
+
+/* Mobile screens */
+@media (max-width: 767px) {
+  .cart-status-container {
+    padding: 2rem 0.5rem;
+    min-height: 50vh;
+  }
+  
+  .cart-status-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .cart-status-content h2 {
+    font-size: 1.8rem;
+  }
+  
+  .cart-status-content p {
+    font-size: 1rem;
+  }
+  
+  .cart-status-actions {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 .cart-items {

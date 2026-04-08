@@ -206,7 +206,7 @@ function renderFromHash() {
 
 export function renderNav() {
   const user = getCurrentUser();
-  const cartItems = loadCart();
+  const cartItems = user ? loadCart(user.id) : [];
   console.log(cartItems);
   const cartCount = cartItems.reduce((c, item) => c + item.qty, 0);
   const nav = document.createElement('nav');
@@ -271,15 +271,20 @@ export function attachSearchEventListeners() {
 
 export function renderHome() {
   const main = document.getElementById('main');
+  const user = getCurrentUser();
   main.innerHTML = `
     <!-- Hero Section -->
     <section class="hero">
       <h1>🌾 Farm Fresh Direct</h1>
       <p>Connecting Kenyan farmers directly with consumers — fresh, fair, and transparent.</p>
-      <div class="cta-buttons">
+      ${
+        !user
+          ? `<div class="cta-buttons">
         <a href="#register" class="btn btn-primary">Start as Consumer</a>
         <a href="#farmer" class="btn btn-secondary">Farmer Login</a>
-      </div>
+      </div>`
+          : ''
+      }
     </section>
 
     <!-- How It Works -->
@@ -358,7 +363,7 @@ export function renderHome() {
         <li>✓ Communicate directly with buyers</li>
         <li>✓ Grow your income</li>
       </ul>
-      <a href="#register" class="btn btn-primary">Register as Farmer</a>
+      ${!user ? '<a href="#register" class="btn btn-primary">Register as Farmer</a>' : ''}
     </section>
 
     <!-- Testimonials -->
@@ -370,7 +375,7 @@ export function renderHome() {
     <!-- Footer CTA -->
     <section class="footer-cta">
       <h3>Ready to join the revolution?</h3>
-      <a href="#register" class="btn btn-primary">Get Started Today</a>
+      ${!user ? '<a href="#register" class="btn btn-primary">Get Started Today</a>' : ''}
     </section>
   `;
   loadProducts();
@@ -721,17 +726,35 @@ function handleRegister(e) {
 }
 
 // simple cart stored in localStorage
-const CART_KEY = 'farmfresh_cart';
-function loadCart() {
-  const raw = localStorage.getItem(CART_KEY);
+const CART_KEY_PREFIX = 'farmfresh_cart_';
+function getCartKey(userId) {
+  return `${CART_KEY_PREFIX}${userId || 'guest'}`;
+}
+function loadCart(userId = null) {
+  if (!userId) {
+    const user = getCurrentUser();
+    userId = user ? user.id : 'guest';
+  }
+  const cartKey = getCartKey(userId);
+  const raw = localStorage.getItem(cartKey);
   return raw ? JSON.parse(raw) : [];
 }
-function saveCart(items) {
-  localStorage.setItem(CART_KEY, JSON.stringify(items));
+function saveCart(items, userId = null) {
+  if (!userId) {
+    const user = getCurrentUser();
+    userId = user ? user.id : 'guest';
+  }
+  const cartKey = getCartKey(userId);
+  localStorage.setItem(cartKey, JSON.stringify(items));
 }
 
 function addToCart(product, quantity = 1) {
-  const cart = loadCart();
+  const user = getCurrentUser();
+  if (!user) {
+    notify.warning('Please log in to add items to cart');
+    return;
+  }
+  const cart = loadCart(user.id);
   const existing = cart.find((c) => c.id === product.id);
   if (existing) {
     existing.qty += quantity;
@@ -744,7 +767,7 @@ function addToCart(product, quantity = 1) {
       image: product.image,
     });
   }
-  saveCart(cart);
+  saveCart(cart, user.id);
   notify.success(`Added ${quantity} ${product.name}(s) to cart`);
 }
 
@@ -805,30 +828,58 @@ function sendChatMessage(productId, farmerId, message) {
 }
 
 function updateCartQuantity(productId, newQty) {
-  const cart = loadCart();
+  const user = getCurrentUser();
+  if (!user) return;
+  const cart = loadCart(user.id);
   const item = cart.find((c) => c.id === productId);
   if (item) {
     item.qty = newQty;
-    saveCart(cart);
+    saveCart(cart, user.id);
     renderCart(); // Re-render cart to update totals
   }
 }
 
 function removeFromCart(productId) {
-  const cart = loadCart();
+  const user = getCurrentUser();
+  if (!user) return;
+  const cart = loadCart(user.id);
   const filteredCart = cart.filter((c) => c.id !== productId);
-  saveCart(filteredCart);
+  saveCart(filteredCart, user.id);
   renderCart(); // Re-render cart
 }
 
 export function renderCart() {
   const main = document.getElementById('main');
-  const items = loadCart();
+  const user = getCurrentUser();
+  
+  if (!user) {
+    main.innerHTML = `
+      <div class="cart-status-container">
+        <div class="cart-status-content">
+          <h2>Your Cart</h2>
+          <p>Please log in to view and manage your cart items.</p>
+          <div class="cart-status-actions">
+            <a href="#login" class="btn btn-primary">Login to View Cart</a>
+            <a href="#register" class="btn btn-secondary">Create Account</a>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const items = loadCart(user.id);
   if (items.length === 0) {
     main.innerHTML = `
-      <div class="cart-container">
-        <h2>Your Cart</h2>
-        <p>Your cart is empty. <a href="#marketplace">Browse products</a> to add items.</p>
+      <div class="cart-status-container">
+        <div class="cart-status-content">
+          <h2>Your Cart is Empty</h2>
+          <p>You haven't added any products to your cart yet. Start browsing our fresh produce from Kenyan farmers!</p>
+          <div class="cart-status-actions">
+            <a href="#marketplace" class="btn btn-primary">Browse Products</a>
+            <a href="#home" class="btn btn-secondary">Back to Home</a>
+          </div>
+        </div>
       </div>
     `;
     return;
@@ -1010,14 +1061,28 @@ export function renderFarmerDashboard() {
   const main = document.getElementById('main');
 
   if (!user) {
-    main.innerHTML = `<h2>Farmer Dashboard</h2>
-      <p>Please <a href="#login">log in</a> first to access this page.</p>`;
+    main.innerHTML = `
+      <div class="access-denied-container">
+        <div class="access-denied-content">
+          <h2>Farmer Dashboard</h2>
+          <p>Please <a href="#login">log in</a> first to access this page.</p>
+          <a href="#login" class="btn btn-primary">Login Now</a>
+        </div>
+      </div>
+    `;
     return;
   }
 
   if (user.role !== 'farmer') {
-    main.innerHTML = `<h2>Access Denied</h2>
-      <p>This page is only available to farmers. You are logged in as <strong>${user.role}</strong>.</p>`;
+    main.innerHTML = `
+      <div class="access-denied-container">
+        <div class="access-denied-content">
+          <h2>Access Denied</h2>
+          <p>This page is only available to farmers. You are logged in as <strong>${user.role}</strong>.</p>
+          <a href="#home" class="btn btn-secondary">Go to Home</a>
+        </div>
+      </div>
+    `;
     return;
   }
 
