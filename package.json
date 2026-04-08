@@ -1,0 +1,21 @@
+{
+  "name": "farm-fresh-monorepo",
+  "version": "1.0.0",
+  "description": "Farm Fresh monorepo for client and server",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=client\" \"npm run dev --workspace=server\"",
+    "build": "npm run build --workspace=client && npm run build --workspace=server",
+    "test": "npm run test --workspace=client && npm run test --workspace=server"
+  },
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
