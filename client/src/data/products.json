@@ -6,7 +6,7 @@
         "category": "Fruits",
         "price": 150,
         "quantity": 100,
-        "image": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop",
+        "image": "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=300&h=300&fit=crop",
         "description": "Fresh, creamy Hass avocados from Kiambu farms"
     },
     {
@@ -16,7 +16,7 @@
         "category": "Vegetables",
         "price": 50,
         "quantity": 200,
-        "image": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop",
+        "image": "https://images.unsplash.com/photo-1582284540020-8acbe03f492?w=300&h=300&fit=crop",
         "description": "Ripe, juicy tomatoes perfect for cooking"
     },
     {
@@ -26,7 +26,7 @@
         "category": "Vegetables",
         "price": 120,
         "quantity": 80,
-        "image": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop",
+        "image": "https://images.unsplash.com/photo-1561136594-7f6846a1cd90?w=300&h=300&fit=crop",
         "description": "Colorful bell peppers - red, yellow, green"
     },
     {
@@ -36,8 +36,28 @@
         "category": "Grains",
         "price": 80,
         "quantity": 150,
-        "image": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop",
+        "image": "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=300&h=300&fit=crop",
         "description": "Fresh sweet corn from the field"
+    },
+    {
+        "id": 9,
+        "farmerId": 1,
+        "name": "Fresh Milk - Organic",
+        "category": "Dairy",
+        "price": 120,
+        "quantity": 50,
+        "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&h=300&fit=crop",
+        "description": "Grade A organic milk from free-range cattle"
+    },
+    {
+        "id": 10,
+        "farmerId": 1,
+        "name": "Oranges - Valencia",
+        "category": "Fruits",
+        "price": 80,
+        "quantity": 160,
+        "image": "https://images.unsplash.com/photo-1547514701-42782101795e?w=300&h=300&fit=crop",
+        "description": "Juicy Valencia oranges, perfect for juice and fresh eating"
     },
     {
         "id": 5,
@@ -46,7 +66,7 @@
         "category": "Vegetables",
         "price": 60,
         "quantity": 250,
-        "image": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop",
+        "image": "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=300&h=300&fit=crop",
         "description": "Quality potatoes for all your cooking needs"
     },
     {
@@ -56,7 +76,7 @@
         "category": "Vegetables",
         "price": 40,
         "quantity": 200,
-        "image": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop",
+        "image": "https://images.unsplash.com/photo-1582515073490-39981397c445?w=300&h=300&fit=crop",
         "description": "Sweet orange carrots, freshly harvested"
     },
     {
@@ -66,7 +86,7 @@
         "category": "Vegetables",
         "price": 30,
         "quantity": 180,
-        "image": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop",
+        "image": "https://images.unsplash.com/photo-1598030304678-0a8c3272de4c?w=300&h=300&fit=crop",
         "description": "Fresh green cabbage"
     },
     {
@@ -76,7 +96,7 @@
         "category": "Fruits",
         "price": 100,
         "quantity": 120,
-        "image": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=300&h=300&fit=crop",
+        "image": "https://images.unsplash.com/photo-1553279768-865429fa0078?w=300&h=300&fit=crop",
         "description": "Sweet, succulent mangoes from coastal regions"
     }
 ]

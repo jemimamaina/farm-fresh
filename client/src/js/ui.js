@@ -1165,7 +1165,7 @@ function loadFarmerProducts(farmerId) {
       localStorage.getItem(`farmer_products_${farmerId}`) || '[]',
     );
 
-    const allFarmerProducts = [, ...farmerProducts];
+    const allFarmerProducts = [...staticProducts, ...farmerProducts];
 
     if (allFarmerProducts.length === 0) {
       container.innerHTML =
