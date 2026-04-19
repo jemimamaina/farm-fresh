@@ -1,0 +1,102 @@
+[
+    {
+        "id": 1,
+        "farmerId": 1,
+        "name": "Avocado - Hass",
+        "category": "Fruits",
+        "price": 150,
+        "quantity": 100,
+        "image": "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=300&h=300&fit=crop",
+        "description": "Fresh, creamy Hass avocados from Kiambu farms"
+    },
+    {
+        "id": 2,
+        "farmerId": 1,
+        "name": "Tomatoes",
+        "category": "Vegetables",
+        "price": 50,
+        "quantity": 200,
+        "image": "https://images.unsplash.com/photo-1506806732259-39c2d0268443?w=300&h=300&fit=crop",
+        "description": "Ripe, juicy tomatoes perfect for cooking"
+    },
+    {
+        "id": 3,
+        "farmerId": 1,
+        "name": "Bell Peppers",
+        "category": "Vegetables",
+        "price": 120,
+        "quantity": 80,
+        "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300&h=300&fit=crop",
+        "description": "Colorful bell peppers - red, yellow, green"
+    },
+    {
+        "id": 4,
+        "farmerId": 1,
+        "name": "Maize (Corn)",
+        "category": "Grains",
+        "price": 80,
+        "quantity": 150,
+        "image": "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=300&h=300&fit=crop",
+        "description": "Fresh sweet corn from the field"
+    },
+    {
+        "id": 9,
+        "farmerId": 1,
+        "name": "Fresh Milk - Organic",
+        "category": "Dairy",
+        "price": 120,
+        "quantity": 50,
+        "image": "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&h=300&fit=crop",
+        "description": "Grade A organic milk from free-range cattle"
+    },
+    {
+        "id": 10,
+        "farmerId": 1,
+        "name": "Oranges - Valencia",
+        "category": "Fruits",
+        "price": 80,
+        "quantity": 160,
+        "image": "https://images.unsplash.com/photo-1547514701-42782101795e?w=300&h=300&fit=crop",
+        "description": "Juicy Valencia oranges, perfect for juice and fresh eating"
+    },
+    {
+        "id": 5,
+        "farmerId": 2,
+        "name": "Potatoes",
+        "category": "Vegetables",
+        "price": 60,
+        "quantity": 250,
+        "image": "https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=300&h=300&fit=crop",
+        "description": "Quality potatoes for all your cooking needs"
+    },
+    {
+        "id": 6,
+        "farmerId": 2,
+        "name": "Carrots",
+        "category": "Vegetables",
+        "price": 40,
+        "quantity": 200,
+        "image": "https://images.unsplash.com/photo-1582515073490-39981397c445?w=300&h=300&fit=crop",
+        "description": "Sweet orange carrots, freshly harvested"
+    },
+    {
+        "id": 7,
+        "farmerId": 2,
+        "name": "Cabbage",
+        "category": "Vegetables",
+        "price": 30,
+        "quantity": 180,
+        "image": "https://images.unsplash.com/photo-1598030304678-0a8c3272de4c?w=300&h=300&fit=crop",
+        "description": "Fresh green cabbage"
+    },
+    {
+        "id": 8,
+        "farmerId": 3,
+        "name": "Mangoes",
+        "category": "Fruits",
+        "price": 100,
+        "quantity": 120,
+        "image": "https://images.unsplash.com/photo-1553279768-865429fa0078?w=300&h=300&fit=crop",
+        "description": "Sweet, succulent mangoes from coastal regions"
+    }
+]

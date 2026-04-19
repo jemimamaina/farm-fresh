@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "role": "farmer",
+    "name": "Joseph Mwangi",
+    "farmLocation": "Kiambu",
+    "contact": "0700123456",
+    "email": "joseph@example.com",
+    "isFeatured": true
+  },
+  {
+    "id": 2,
+    "role": "farmer",
+    "name": "Peter Kipchoge",
+    "farmLocation": "Kericho",
+    "contact": "0722334455",
+    "email": "peter@example.com"
+  },
+  {
+    "id": 3,
+    "role": "farmer",
+    "name": "Jane Wanjiru",
+    "farmLocation": "Mombasa",
+    "contact": "0733445566",
+    "email": "jane@example.com"
+  },
+  {
+    "id": 4,
+    "role": "consumer",
+    "name": "Alice Njeri",
+    "deliveryAddress": "Nairobi",
+    "email": "alice@example.com",
+    "contact": "0744556677"
+  },
+  {
+    "id": 5,
+    "role": "consumer",
+    "name": "David Okoro",
+    "deliveryAddress": "Nakuru",
+    "email": "david@example.com",
+    "contact": "0755667788"
+  },
+  {
+    "id": 6,
+    "role": "admin",
+    "name": "Admin User",
+    "email": "admin@farmfresh.com",
+    "contact": "0799999999"
+  }
+]
