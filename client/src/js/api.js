@@ -1,80 +1,108 @@
-// simple mock API that imports JSON files and returns promises
-import users from '../data/users.json';
-import products from '../data/products.json';
-import orders from '../data/orders.json';
-import testimonials from '../data/testimonials.json';
+const API_BASE = '/api';
 
-export function fetchUsers() {
-  const staticUsers = users;
-  const registeredUsers = JSON.parse(localStorage.getItem('registered_users') || '[]');
-  return Promise.resolve([...staticUsers, ...registeredUsers]);
+function getLocalRegisteredUsers() {
+  try {
+    return JSON.parse(localStorage.getItem('registered_users') || '[]');
+  } catch {
+    return [];
+  }
 }
 
-export function fetchProducts() {
-  const staticProducts = products;
-
-  // Get all farmer products from localStorage
+function getLocalFarmerProducts() {
   const farmerProducts = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key && key.startsWith('farmer_products_')) {
-      const products = JSON.parse(localStorage.getItem(key) || '[]');
-      farmerProducts.push(...products);
+      try {
+        const stored = JSON.parse(localStorage.getItem(key) || '[]');
+        if (Array.isArray(stored)) {
+          farmerProducts.push(...stored);
+        }
+      } catch {
+        // ignore invalid stored values
+      }
     }
   }
-
-  return Promise.resolve([...staticProducts, ...farmerProducts]);
+  return farmerProducts;
 }
 
-export function fetchOrders() {
-  return Promise.resolve(orders);
-}
-
-export function fetchTestimonials() {
-  return Promise.resolve(testimonials);
-}
-
-export function addOrder(order) {
-  // in-memory for now; just return the order with an id
-  const id = orders.length + 1;
-  const newOrder = { id, ...order, status: 'pending', paymentStatus: 'pending', createdAt: new Date().toISOString() };
-  orders.push(newOrder);
-  return Promise.resolve(newOrder);
-}
-
-function resolveAllProducts() {
-  const staticProducts = products;
-  const farmerProducts = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key && key.startsWith('farmer_products_')) {
-      const saved = JSON.parse(localStorage.getItem(key) || '[]');
-      farmerProducts.push(...saved);
-    }
+function filterLocalProducts({ category, q } = {}) {
+  let items = getLocalFarmerProducts();
+  if (category && category !== 'All') {
+    items = items.filter((product) => product.category === category);
   }
-  return [...staticProducts, ...farmerProducts];
+  if (q) {
+    const lowered = q.toLowerCase();
+    items = items.filter(
+      (product) =>
+        product.name.toLowerCase().includes(lowered) ||
+        product.category.toLowerCase().includes(lowered) ||
+        (product.description && product.description.toLowerCase().includes(lowered)),
+    );
+  }
+  return items;
 }
 
-export function getProductById(id) {
-  const allProducts = resolveAllProducts();
-  const prod = allProducts.find((p) => p.id === Number(id));
-  return Promise.resolve(prod);
+async function fetchApi(endpoint, options = {}) {
+  const response = await fetch(`${API_BASE}${endpoint}`, options);
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`API request failed: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+  return response.json();
 }
 
-export function getProductsByCategory(category) {
-  const allProducts = resolveAllProducts();
-  const filtered = allProducts.filter((p) => p.category === category);
-  return Promise.resolve(filtered);
+export async function fetchUsers() {
+  const staticUsers = await fetchApi('/users');
+  return [...staticUsers, ...getLocalRegisteredUsers()];
 }
 
-export function searchProducts(query) {
-  const q = query.toLowerCase();
-  const allProducts = resolveAllProducts();
-  const filtered = allProducts.filter((p) =>
-    p.name.toLowerCase().includes(q) ||
-    p.category.toLowerCase().includes(q) ||
-    (p.description && p.description.toLowerCase().includes(q))
-  );
-  return Promise.resolve(filtered);
+export async function fetchProducts() {
+  const staticProducts = await fetchApi('/products');
+  return [...staticProducts, ...getLocalFarmerProducts()];
+}
+
+export async function fetchOrders() {
+  return fetchApi('/orders');
+}
+
+export async function fetchTestimonials() {
+  return fetchApi('/testimonials');
+}
+
+export async function addOrder(order) {
+  return fetchApi('/orders', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(order),
+  });
+}
+
+async function resolveAllProducts() {
+  const staticProducts = await fetchApi('/products');
+  return [...staticProducts, ...getLocalFarmerProducts()];
+}
+
+export async function getProductById(id) {
+  const allProducts = await resolveAllProducts();
+  return allProducts.find((p) => p.id === Number(id));
+}
+
+export async function getProductsByCategory(category) {
+  if (!category || category === 'All') {
+    return resolveAllProducts();
+  }
+  const staticProducts = await fetchApi(`/products?category=${encodeURIComponent(category)}`);
+  return [...staticProducts, ...filterLocalProducts({ category })];
+}
+
+export async function searchProducts(query) {
+  if (!query) {
+    return resolveAllProducts();
+  }
+  const staticProducts = await fetchApi(`/products/search?q=${encodeURIComponent(query)}`);
+  return [...staticProducts, ...filterLocalProducts({ q: query })];
 }
 
