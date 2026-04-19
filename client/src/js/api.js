@@ -86,8 +86,14 @@ async function resolveAllProducts() {
 }
 
 export async function getProductById(id) {
-  const allProducts = await resolveAllProducts();
-  return allProducts.find((p) => p.id === Number(id));
+  try {
+    const staticProduct = await fetchApi(`/products/${encodeURIComponent(id)}`);
+    return staticProduct;
+  } catch (error) {
+    // Fallback to local farmer products if the server does not have the item
+    const localProducts = getLocalFarmerProducts();
+    return localProducts.find((p) => p.id === Number(id));
+  }
 }
 
 export async function getProductsByCategory(category) {
