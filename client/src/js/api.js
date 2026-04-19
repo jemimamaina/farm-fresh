@@ -92,7 +92,7 @@ export async function getProductById(id) {
   } catch (error) {
     // Fallback to local farmer products if the server does not have the item
     const localProducts = getLocalFarmerProducts();
-    return localProducts.find((p) => p.id === Number(id));
+    return localProducts.find((p) => p.id === id);
   }
 }
 

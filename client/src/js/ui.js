@@ -14,6 +14,15 @@ const MARKETPLACE_STATE = {
 };
 let routingInitialized = false;
 
+// Generate UUID v4 for product IDs
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 // ============ NOTIFICATION COMPONENT ============
 class Notification {
   constructor() {
@@ -688,7 +697,7 @@ function handleRegister(e) {
 
     // Mock registration - in a real app, this would be an API call
     const newUser = {
-      id: Date.now(), // Simple ID generation
+      id: generateUUID(),
       name,
       email,
       password,
@@ -814,7 +823,7 @@ function sendChatMessage(productId, farmerId, message) {
   const messages = JSON.parse(localStorage.getItem(chatKey) || '[]');
 
   const newMessage = {
-    id: Date.now(),
+    id: generateUUID(),
     sender: user.role === 'consumer' ? 'consumer' : 'farmer',
     senderName: user.name,
     text: message,
@@ -925,7 +934,7 @@ export function renderCart() {
     .querySelectorAll('.cart-item input[type="number"]')
     .forEach((input) => {
       input.addEventListener('change', (e) => {
-        const productId = parseInt(e.target.dataset.productId);
+        const productId = e.target.dataset.productId;
         const newQty = parseInt(e.target.value);
         updateCartQuantity(productId, newQty);
       });
@@ -933,7 +942,7 @@ export function renderCart() {
 
   document.querySelectorAll('.remove-item').forEach((btn) => {
     btn.addEventListener('click', (e) => {
-      const productId = parseInt(e.target.dataset.productId);
+      const productId = e.target.dataset.productId;
       removeFromCart(productId);
     });
   });
@@ -1197,14 +1206,14 @@ function loadFarmerProducts(farmerId) {
     // Add event listeners for edit and delete buttons
     container.querySelectorAll('.edit-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        const productId = parseInt(e.target.dataset.productId);
+        const productId = e.target.dataset.productId;
         editProduct(productId, farmerId);
       });
     });
 
     container.querySelectorAll('.delete-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        const productId = parseInt(e.target.dataset.productId);
+        const productId = e.target.dataset.productId;
         deleteProduct(productId, farmerId);
       });
     });
@@ -1246,7 +1255,7 @@ function handleProductSubmit(e, farmerId) {
   const formData = new FormData(e.target);
   const productId = formData.get('productId');
   const product = {
-    id: productId ? parseInt(productId) : Date.now(),
+    id: productId || generateUUID(),
     farmerId: farmerId,
     name: formData.get('name'),
     category: formData.get('category'),

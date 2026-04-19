@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const { randomUUID } = require('crypto');
 const router = express.Router();
 
 const users = require(path.join(__dirname, '../data/users.json'));
@@ -47,7 +48,7 @@ router.get('/products/search', (req, res) => {
 });
 
 router.get('/products/:id', (req, res) => {
-  const id = Number(req.params.id);
+  const id = req.params.id;
   const product = products.find((item) => item.id === id);
 
   if (!product) {
@@ -69,7 +70,7 @@ router.post('/orders', (req, res) => {
   }
 
   const newOrder = {
-    id: orders.length + 1,
+    id: randomUUID(),
     ...order,
     status: 'pending',
     paymentStatus: 'pending',

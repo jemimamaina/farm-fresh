@@ -1,6 +1,6 @@
 [
   {
-    "id": 1,
+    "id": "550e8400-e29b-41d4-a716-446655440001",
     "role": "farmer",
     "name": "Joseph Mwangi",
     "farmLocation": "Kiambu",
@@ -9,7 +9,7 @@
     "isFeatured": true
   },
   {
-    "id": 2,
+    "id": "550e8400-e29b-41d4-a716-446655440002",
     "role": "farmer",
     "name": "Peter Kipchoge",
     "farmLocation": "Kericho",
@@ -17,7 +17,7 @@
     "email": "peter@example.com"
   },
   {
-    "id": 3,
+    "id": "550e8400-e29b-41d4-a716-446655440003",
     "role": "farmer",
     "name": "Jane Wanjiru",
     "farmLocation": "Mombasa",
@@ -25,7 +25,7 @@
     "email": "jane@example.com"
   },
   {
-    "id": 4,
+    "id": "550e8400-e29b-41d4-a716-446655440004",
     "role": "consumer",
     "name": "Alice Njeri",
     "deliveryAddress": "Nairobi",
@@ -33,7 +33,7 @@
     "contact": "0744556677"
   },
   {
-    "id": 5,
+    "id": "550e8400-e29b-41d4-a716-446655440005",
     "role": "consumer",
     "name": "David Okoro",
     "deliveryAddress": "Nakuru",
@@ -41,7 +41,7 @@
     "contact": "0755667788"
   },
   {
-    "id": 6,
+    "id": "550e8400-e29b-41d4-a716-446655440006",
     "role": "admin",
     "name": "Admin User",
     "email": "admin@farmfresh.com",

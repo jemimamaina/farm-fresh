@@ -1,7 +1,7 @@
 [
     {
-        "id": 1,
-        "farmerId": 1,
+        "id": "650e8400-e29b-41d4-a716-446655440001",
+        "farmerId": "550e8400-e29b-41d4-a716-446655440001",
         "name": "Avocado - Hass",
         "category": "Fruits",
         "price": 150,
@@ -10,8 +10,8 @@
         "description": "Fresh, creamy Hass avocados from Kiambu farms"
     },
     {
-        "id": 2,
-        "farmerId": 1,
+        "id": "650e8400-e29b-41d4-a716-446655440002",
+        "farmerId": "550e8400-e29b-41d4-a716-446655440001",
         "name": "Tomatoes",
         "category": "Vegetables",
         "price": 50,
@@ -20,8 +20,8 @@
         "description": "Ripe, juicy tomatoes perfect for cooking"
     },
     {
-        "id": 3,
-        "farmerId": 1,
+        "id": "650e8400-e29b-41d4-a716-446655440003",
+        "farmerId": "550e8400-e29b-41d4-a716-446655440001",
         "name": "Bell Peppers",
         "category": "Vegetables",
         "price": 120,
@@ -30,8 +30,8 @@
         "description": "Colorful bell peppers - red, yellow, green"
     },
     {
-        "id": 4,
-        "farmerId": 1,
+        "id": "650e8400-e29b-41d4-a716-446655440004",
+        "farmerId": "550e8400-e29b-41d4-a716-446655440001",
         "name": "Maize (Corn)",
         "category": "Grains",
         "price": 80,
@@ -40,8 +40,8 @@
         "description": "Fresh sweet corn from the field"
     },
     {
-        "id": 9,
-        "farmerId": 1,
+        "id": "650e8400-e29b-41d4-a716-446655440009",
+        "farmerId": "550e8400-e29b-41d4-a716-446655440001",
         "name": "Fresh Milk - Organic",
         "category": "Dairy",
         "price": 120,
@@ -50,8 +50,8 @@
         "description": "Grade A organic milk from free-range cattle"
     },
     {
-        "id": 10,
-        "farmerId": 1,
+        "id": "650e8400-e29b-41d4-a716-446655440010",
+        "farmerId": "550e8400-e29b-41d4-a716-446655440001",
         "name": "Oranges - Valencia",
         "category": "Fruits",
         "price": 80,
@@ -60,8 +60,8 @@
         "description": "Juicy Valencia oranges, perfect for juice and fresh eating"
     },
     {
-        "id": 5,
-        "farmerId": 2,
+        "id": "650e8400-e29b-41d4-a716-446655440005",
+        "farmerId": "550e8400-e29b-41d4-a716-446655440002",
         "name": "Potatoes",
         "category": "Vegetables",
         "price": 60,
@@ -70,8 +70,8 @@
         "description": "Quality potatoes for all your cooking needs"
     },
     {
-        "id": 6,
-        "farmerId": 2,
+        "id": "650e8400-e29b-41d4-a716-446655440006",
+        "farmerId": "550e8400-e29b-41d4-a716-446655440002",
         "name": "Carrots",
         "category": "Vegetables",
         "price": 40,
@@ -80,8 +80,8 @@
         "description": "Sweet orange carrots, freshly harvested"
     },
     {
-        "id": 7,
-        "farmerId": 2,
+        "id": "650e8400-e29b-41d4-a716-446655440007",
+        "farmerId": "550e8400-e29b-41d4-a716-446655440002",
         "name": "Cabbage",
         "category": "Vegetables",
         "price": 30,
@@ -90,8 +90,8 @@
         "description": "Fresh green cabbage"
     },
     {
-        "id": 8,
-        "farmerId": 3,
+        "id": "650e8400-e29b-41d4-a716-446655440008",
+        "farmerId": "550e8400-e29b-41d4-a716-446655440003",
         "name": "Mangoes",
         "category": "Fruits",
         "price": 100,

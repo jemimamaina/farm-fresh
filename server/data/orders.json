@@ -1,9 +1,9 @@
 [
   {
-    "id": 1,
-    "consumerId": 2,
+    "id": "750e8400-e29b-41d4-a716-446655440001",
+    "consumerId": "550e8400-e29b-41d4-a716-446655440002",
     "items": [
-      { "productId": 1, "quantity": 5 }
+      { "productId": "650e8400-e29b-41d4-a716-446655440001", "quantity": 5 }
     ],
     "status": "pending",
     "paymentStatus": "pending",
