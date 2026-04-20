@@ -8,26 +8,54 @@ function getLocalRegisteredUsers() {
   }
 }
 
-function getLocalFarmerProducts() {
-  const farmerProducts = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key && key.startsWith('farmer_products_')) {
-      try {
-        const stored = JSON.parse(localStorage.getItem(key) || '[]');
-        if (Array.isArray(stored)) {
-          farmerProducts.push(...stored);
+async function getLocalFarmerProducts() {
+  try {
+    // Fetch farmer products from the API
+    const farmerProducts = await fetchApi('/farmer/products');
+    return Array.isArray(farmerProducts) ? farmerProducts : [];
+  } catch (error) {
+    console.warn('Failed to fetch farmer products from API, using localStorage:', error);
+    // Fallback to localStorage if API fails
+    const products = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('farmer_products_')) {
+        try {
+          const stored = JSON.parse(localStorage.getItem(key) || '[]');
+          if (Array.isArray(stored)) {
+            products.push(...stored);
+          }
+        } catch {
+          // ignore invalid stored values
         }
-      } catch {
-        // ignore invalid stored values
       }
     }
+    return products;
   }
-  return farmerProducts;
 }
 
 function filterLocalProducts({ category, q } = {}) {
-  let items = getLocalFarmerProducts();
+  const farmerProducts = getLocalFarmerProducts();
+  // If it's a promise, return a promise
+  if (farmerProducts instanceof Promise) {
+    return farmerProducts.then((items) => {
+      if (category && category !== 'All') {
+        items = items.filter((product) => product.category === category);
+      }
+      if (q) {
+        const lowered = q.toLowerCase();
+        items = items.filter(
+          (product) =>
+            product.name.toLowerCase().includes(lowered) ||
+            product.category.toLowerCase().includes(lowered) ||
+            (product.description && product.description.toLowerCase().includes(lowered)),
+        );
+      }
+      return items;
+    });
+  }
+  // Otherwise handle it synchronously (for backwards compatibility)
+  let items = farmerProducts;
   if (category && category !== 'All') {
     items = items.filter((product) => product.category === category);
   }
@@ -59,7 +87,8 @@ export async function fetchUsers() {
 
 export async function fetchProducts() {
   const staticProducts = await fetchApi('/products');
-  return [...staticProducts, ...getLocalFarmerProducts()];
+  const farmerProducts = await getLocalFarmerProducts();
+  return [...staticProducts, ...farmerProducts];
 }
 
 export async function fetchOrders() {
@@ -82,7 +111,8 @@ export async function addOrder(order) {
 
 async function resolveAllProducts() {
   const staticProducts = await fetchApi('/products');
-  return [...staticProducts, ...getLocalFarmerProducts()];
+  const farmerProducts = await getLocalFarmerProducts();
+  return [...staticProducts, ...farmerProducts];
 }
 
 export async function getProductById(id) {
@@ -91,7 +121,7 @@ export async function getProductById(id) {
     return staticProduct;
   } catch (error) {
     // Fallback to local farmer products if the server does not have the item
-    const localProducts = getLocalFarmerProducts();
+    const localProducts = await getLocalFarmerProducts();
     return localProducts.find((p) => p.id === id);
   }
 }
@@ -101,7 +131,11 @@ export async function getProductsByCategory(category) {
     return resolveAllProducts();
   }
   const staticProducts = await fetchApi(`/products?category=${encodeURIComponent(category)}`);
-  return [...staticProducts, ...filterLocalProducts({ category })];
+  const farmerProducts = await getLocalFarmerProducts();
+  const filteredFarmerProducts = farmerProducts.filter(
+    (product) => product.category === category,
+  );
+  return [...staticProducts, ...filteredFarmerProducts];
 }
 
 export async function searchProducts(query) {
@@ -109,6 +143,34 @@ export async function searchProducts(query) {
     return resolveAllProducts();
   }
   const staticProducts = await fetchApi(`/products/search?q=${encodeURIComponent(query)}`);
-  return [...staticProducts, ...filterLocalProducts({ q: query })];
+  const farmerProducts = await getLocalFarmerProducts();
+  const lowered = query.toLowerCase();
+  const filteredFarmerProducts = farmerProducts.filter(
+    (product) =>
+      product.name.toLowerCase().includes(lowered) ||
+      product.category.toLowerCase().includes(lowered) ||
+      (product.description && product.description.toLowerCase().includes(lowered)),
+  );
+  return [...staticProducts, ...filteredFarmerProducts];
+}
+
+export async function addFarmerProduct(farmerId, productData) {
+  return fetchApi('/farmer/products', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      farmerId,
+      ...productData,
+    }),
+  });
+}
+
+export async function getFarmerProducts(farmerId) {
+  if (!farmerId) {
+    return fetchApi('/farmer/products');
+  }
+  return fetchApi(`/farmer/products/${encodeURIComponent(farmerId)}`);
 }
 
