@@ -1,262 +1,254 @@
 # 🌾 Farm Fresh Direct
 
-A direct farmer-to-consumer marketplace platform connecting Kenyan farmers with consumers, eliminating exploitative intermediaries and promoting fair trade in local agriculture.
+Farm Fresh Direct is a farmer-to-consumer marketplace for Kenyan agriculture. It connects farmers directly with shoppers, reduces middleman overhead, and supports fresh local produce through a web-based buyer and seller experience.
 
 ## 📋 Table of Contents
 - [Overview](#overview)
-- [Features](#features)
+- [Highlights](#highlights)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Installation & Setup](#installation--setup)
 - [Usage](#usage)
+- [Backend API](#backend-api)
+- [Data](#data)
 - [User Roles](#user-roles)
-- [API Documentation](#api-documentation)
 - [Contributing](#contributing)
 - [License](#license)
 
 ## 🎯 Overview
 
-Farm Fresh Direct is a web-based marketplace that revolutionizes agricultural commerce in Kenya by creating direct connections between local farmers and consumers. The platform enables farmers to set their own prices, communicate directly with buyers, and maintain control over their produce while providing consumers with fresh, locally-sourced products at fair prices.
+Farm Fresh Direct enables Kenyan farmers to list produce, manage inventory, and communicate directly with consumers. Consumers can browse fresh local produce, add items to cart, and complete a simulated checkout flow.
 
-### Mission
-- **For Farmers**: Eliminate middlemen exploitation, provide fair pricing, and enable direct consumer relationships
-- **For Consumers**: Access fresh, local produce at transparent prices with direct farmer communication
-- **For Community**: Support sustainable local agriculture and strengthen Kenyan farming communities
+## ⭐ Highlights
 
-## ✨ Features
-
-### 🛒 Core Marketplace Features
-- **Product Catalog**: Browse fresh produce from verified Kenyan farmers
-- **Category Filtering**: Filter by Fruits, Vegetables, Grains, and Dairy
-- **Advanced Search**: Search across product names, categories, and descriptions
-- **Product Details**: Comprehensive product information with images and farmer details
-- **Shopping Cart**: Persistent cart with quantity management
-
-### 👥 User Management
-- **Dual User Roles**: Separate interfaces for farmers and consumers
-- **Secure Authentication**: Registration and login with role-based access
-- **Profile Management**: Personalized dashboards for each user type
-
-### 🌱 Farmer Features
-- **Product Management**: Add, edit, and manage product listings
-- **Dashboard**: Overview of products, orders, and communications
-- **Direct Communication**: Chat interface with potential buyers
-
-### 🛍️ Consumer Features
-- **Easy Browsing**: Intuitive product discovery and filtering
-- **Farmer Connection**: Chat with farmers for questions and negotiations
-- **Order Management**: Track orders and payment status
-
-### 💳 Payment Integration
-- **M-Pesa Simulation**: Mock payment flow for Kenyan mobile money
-- **Order Tracking**: Real-time order and payment status updates
-
-### 📱 User Experience
-- **Responsive Design**: Optimized for desktop and mobile devices
-- **Green Theme**: Agricultural branding with clean, accessible UI
-- **Intuitive Navigation**: Hash-based routing for seamless browsing
+- Direct farmer-to-consumer marketplace
+- Product browsing, search, and category filtering
+- Farmer product management and inventory CRUD
+- Shopping cart and checkout simulation
+- Mock M-Pesa-inspired payment flow
+- Backend API with Express and MySQL
+- LocalStorage fallback for frontend persistence
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Framework**: Vanilla JavaScript (ES6+)
-- **Build Tool**: Vite
-- **Styling**: CSS3 with responsive design
-- **Routing**: Hash-based client-side routing
+- Vanilla JavaScript (ES6+)
+- Vite
+- HTML5 + CSS3
+- Hash-based routing and client-side rendering
 
-### Backend (Planned)
-- **Runtime**: Node.js
-- **Database**: MySQL
-- **API**: RESTful endpoints
-- **Authentication**: Session-based with role management
+### Backend
+- Node.js
+- Express
+- MySQL (`mysql2`)
+- CORS-enabled local API
 
-### Development Tools
-- **Version Control**: Git
-- **Package Manager**: npm
-- **Development Server**: Vite Dev Server
+### Packages
+- `concurrently` for running both client and server together
+- `vite` for frontend development
+- `express`, `cors`, `mysql2` for backend API
 
 ## 📁 Project Structure
 
 ```
 farm-fresh/
-├── client/                          # Frontend application
-│   ├── public/                      # Static assets
-│   ├── src/
-│   │   ├── css/
-│   │   │   └── style.css           # Main stylesheet
-│   │   ├── data/                   # Mock data files
-│   │   │   ├── products.json       # Product catalog
-│   │   │   ├── users.json          # User data
-│   │   │   ├── orders.json         # Order history
-│   │   │   └── testimonials.json   # Customer reviews
-│   │   ├── js/
-│   │   │   ├── main.js             # Application entry point
-│   │   │   ├── ui.js               # UI rendering and interactions
-│   │   │   └── api.js              # Mock API layer
-│   │   └── index.html              # Main HTML template
-│   ├── package.json                # Frontend dependencies
-│   └── vite.config.js              # Vite configuration
-├── server/                          # Backend application (planned)
-├── docs/                            # Documentation
-├── farm_features.md                 # Feature specifications
-└── README.md                        # This file
+├── client/                        # Frontend application
+│   ├── public/                    # Static assets
+│   ├── src/                       # Source files
+│   │   ├── css/                   # Styles
+│   │   ├── js/                    # Frontend logic
+│   │   └── index.html             # App shell
+│   ├── package.json               # Frontend dependencies
+│   └── vite.config.js             # Vite config
+├── server/                        # Backend application
+│   ├── data/                      # Seed data and SQL schema
+│   ├── routes/                    # API route definitions
+│   ├── db.js                      # MySQL connection helper
+│   ├── index.js                   # Server entry point
+│   └── package.json               # Backend dependencies
+├── docs/                          # Documentation files
+├── farm_features.md               # MVP feature plan
+└── package.json                   # Monorepo workspace config
 ```
 
 ## 🚀 Installation & Setup
 
 ### Prerequisites
-- Node.js (v16 or higher)
-- npm (comes with Node.js)
+- Node.js v16 or newer
+- npm
+- MySQL server
 - Git
 
-### Quick Start
+### Install dependencies
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd farm-fresh
-   ```
+```bash
+git clone <repository-url>
+cd farm-fresh
+npm install
+```
 
-2. **Install frontend dependencies**
-   ```bash
-   cd client
-   npm install
-   ```
+> `npm install` at the root installs workspaces for both `client` and `server`.
 
-3. **Start the development server**
-   ```bash
-   npm run dev
-   ```
+### Configure the backend
 
-4. **Open your browser**
-   Navigate to `http://localhost:5173` (or the port shown in terminal)
+The server reads these environment variables:
 
-### Development Workflow
+- `DB_HOST` (default: `localhost`)
+- `DB_USER` (default: `root`)
+- `DB_PASSWORD` (default: `root`)
+- `DB_NAME` (default: `farm_fresh`)
 
-- **Development**: `npm run dev` - Starts Vite dev server with hot reload
-- **Build**: `npm run build` - Creates production build in `dist/`
-- **Preview**: `npm run preview` - Preview production build locally
+### Create the database
+
+Run the SQL schema and seed script located at `server/data/sql_script.sql`:
+
+```bash
+mysql -u root -p
+CREATE DATABASE farm_fresh;
+USE farm_fresh;
+SOURCE server/data/sql_script.sql;
+```
+
+### Run locally
+
+Start both services from the root:
+
+```bash
+npm run dev
+```
+
+Start individually:
+
+```bash
+cd client && npm run dev
+cd ../server && npm run dev
+```
+
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:3000`
+
+> The server is designed to start even if the database connection fails, but product and order APIs may be limited in that case.
+
+## 🧪 Scripts
+
+From the root:
+
+- `npm run dev` — run client and server concurrently
+- `npm run dev:client` — run frontend only
+- `npm run dev:server` — run backend only
+- `npm run build` — build the client and run server build placeholder
+- `npm run test` — placeholder test command
+
+From `client/`:
+
+- `npm run dev`
+- `npm run build`
+- `npm run preview`
+
+From `server/`:
+
+- `npm run dev`
+- `npm start`
 
 ## 📖 Usage
 
-### For Consumers
-1. **Browse Products**: Visit the marketplace to explore fresh produce
-2. **Search & Filter**: Use search bar or category filters to find specific items
-3. **View Details**: Click on products to see full details and farmer information
-4. **Chat with Farmers**: Use the chat feature to ask questions or negotiate
-5. **Add to Cart**: Select quantities and add items to your shopping cart
-6. **Checkout**: Complete your order with M-Pesa payment simulation
+### Consumer flow
+1. Browse products across categories
+2. Search by name, category, or description
+3. View product details and farmer information
+4. Add items to cart
+5. Checkout with a simulated payment flow
+6. Review order status
 
-### For Farmers
-1. **Register**: Create a farmer account with your farm details
-2. **Add Products**: Use the farmer dashboard to list your produce
-3. **Manage Inventory**: Update prices, quantities, and product information
-4. **Communicate**: Chat with interested buyers
-5. **Track Orders**: Monitor order status and customer interactions
+### Farmer flow
+1. Register as a farmer
+2. Add and manage product listings
+3. Update prices, quantity, and descriptions
+4. Use chat to communicate with buyers
+5. Track incoming order data
 
-### Navigation
-- **Home**: Landing page with featured products and categories
-- **Browse**: Full marketplace with search and filtering
-- **Cart**: View and manage shopping cart
-- **Login/Register**: User authentication
-- **Farmer Dashboard**: Product management (farmers only)
+### Data persistence
 
-## 👤 User Roles
+The frontend uses browser storage for temporary data and fallback behavior, including:
+
+- `farmfresh_current_user`
+- `farmfresh_cart`
+- `farmer_products_{farmerId}`
+- `farmfresh_chat_{productId}_{farmerId}`
+
+## 🔌 Backend API
+
+The current backend API exposes these endpoints under `/api`.
+
+### Products
+- `GET /api/products`
+- `GET /api/products?category=<category>`
+- `GET /api/products/search?q=<term>`
+- `GET /api/products/:id`
+
+### Users
+- `GET /api/users`
+
+### Orders
+- `GET /api/orders`
+- `POST /api/orders`
+
+### Testimonials
+- `GET /api/testimonials`
+
+### Farmer Products
+- `GET /api/farmer/products`
+- `GET /api/farmer/products/:farmerId`
+- `POST /api/farmer/products`
+
+## 📁 Data
+
+Seed and sample data are available in `server/data`:
+
+- `sql_script.sql` — schema and seed data
+- `users.json`
+- `products.json`
+- `orders.json`
+- `testimonials.json`
+
+## 👥 User Roles
 
 ### Consumer
 - Browse and search products
-- View detailed product information
+- Add items to cart
+- Checkout and track orders
 - Chat with farmers
-- Add items to cart and checkout
-- Track order status
 
 ### Farmer
-- Manage product listings (CRUD operations)
-- View farmer dashboard
-- Communicate with consumers
-- Update product availability and pricing
-- Access farmer-specific features
+- Add, update, and manage product listings
+- View inventory and product details
+- Communicate with buyers
+- Access farmer-specific workflows
 
-### Administrator (Future)
-- Platform management
-- User moderation
-- Analytics and reporting
-
-## 🔌 API Documentation
-
-### Mock API Endpoints (Current Implementation)
-
-#### Products
-- `fetchProducts()` - Get all products
-- `getProductById(id)` - Get specific product
-- `getProductsByCategory(category)` - Filter by category
-- `searchProducts(query)` - Search products
-
-#### Users
-- `fetchUsers()` - Get all users
-- `getCurrentUser()` - Get logged-in user
-
-#### Orders & Cart
-- Cart managed via localStorage
-- Order simulation for checkout flow
-
-#### Communication
-- Chat messages stored in localStorage
-- Farmer-consumer messaging simulation
-
-### Future Backend API
-RESTful endpoints planned for:
-- `/api/products` - Product management
-- `/api/users` - User authentication and profiles
-- `/api/orders` - Order processing
-- `/api/chat` - Messaging system
-- `/api/payments` - Payment processing
+### Administrator (future)
+- Manage users
+- Moderate platform content
+- Access reporting and analytics
 
 ## 🤝 Contributing
 
-We welcome contributions to Farm Fresh Direct! Here's how you can help:
+We welcome contributions.
 
-### Development Setup
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`
+2. Create a branch: `git checkout -b feature/your-feature`
 3. Make your changes
-4. Test thoroughly
-5. Commit with clear messages: `git commit -m "Add: feature description"`
-6. Push to your branch: `git push origin feature/your-feature-name`
-7. Create a Pull Request
+4. Test locally
+5. Commit with a clear message
+6. Push and open a pull request
 
-### Guidelines
-- Follow existing code style and structure
-- Add comments for complex logic
-- Test UI changes across different screen sizes
-- Ensure accessibility compliance
-- Update documentation as needed
-
-### Areas for Contribution
-- Backend API development
-- UI/UX improvements
-- Mobile responsiveness
-- Performance optimization
-- Testing implementation
-- Documentation enhancement
+### Suggested improvements
+- Add backend user authentication
+- Implement real payment integration
+- Build a farmer order management dashboard
+- Add automated tests
+- Improve mobile responsiveness
+- Expand documentation
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Built for the Kenyan agricultural community
-- Inspired by the need for fair trade in local farming
-- Dedicated to supporting sustainable agriculture
-
-## 📞 Support
-
-For questions, issues, or contributions:
-- Create an issue in the repository
-- Contact the development team
-- Check the documentation in the `docs/` folder
-
----
-
-**Farm Fresh Direct** - Connecting farmers and consumers for a better tomorrow 🌱
+This project is currently configured with the `ISC` license in `package.json`.
