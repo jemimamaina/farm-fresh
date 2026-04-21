@@ -144,7 +144,17 @@ export function refreshNav() {
   const existing = document.getElementById('nav-links');
   if (existing) existing.remove();
   app.prepend(renderNav());
-  setupRouting();
+  // Setup nav listeners
+  const links = document.getElementById('nav-links');
+  if (links) {
+    links.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A') {
+        e.preventDefault();
+        const hash = e.target.getAttribute('href');
+        window.location.hash = hash;
+      }
+    });
+  }
 }
 
 export function setupRouting() {
@@ -162,9 +172,8 @@ export function setupRouting() {
   if (!routingInitialized) {
     window.addEventListener('hashchange', renderFromHash);
     routingInitialized = true;
+    renderFromHash();
   }
-
-  renderFromHash();
 }
 
 function renderFromHash() {
