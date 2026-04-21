@@ -1,35 +1,14 @@
 const API_BASE = '/api';
 
-function getLocalRegisteredUsers() {
-  try {
-    return JSON.parse(localStorage.getItem('registered_users') || '[]');
-  } catch {
-    return [];
-  }
-}
-
 async function getLocalFarmerProducts() {
   try {
     // Fetch farmer products from the API
-    const farmerProducts = await fetchApi('/farmer/products');
+    const farmerProducts = await fetchApi('/products');
     return Array.isArray(farmerProducts) ? farmerProducts : [];
   } catch (error) {
     console.warn('Failed to fetch farmer products from API, using localStorage:', error);
-    // Fallback to localStorage if API fails
     const products = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('farmer_products_')) {
-        try {
-          const stored = JSON.parse(localStorage.getItem(key) || '[]');
-          if (Array.isArray(stored)) {
-            products.push(...stored);
-          }
-        } catch {
-          // ignore invalid stored values
-        }
-      }
-    }
+   
     return products;
   }
 }
@@ -81,8 +60,27 @@ async function fetchApi(endpoint, options = {}) {
 }
 
 export async function fetchUsers() {
-  const staticUsers = await fetchApi('/users');
-  return [...staticUsers, ...getLocalRegisteredUsers()];
+  return fetchApi('/users');
+}
+
+export async function registerUser(userData) {
+  return fetchApi('/auth/register', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData),
+  });
+}
+
+export async function loginUser(email, password) {
+  return fetchApi('/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  });
 }
 
 export async function fetchProducts() {
@@ -93,6 +91,14 @@ export async function fetchProducts() {
 
 export async function fetchOrders() {
   return fetchApi('/orders');
+}
+
+export async function fetchUserOrders(userId) {
+  return fetchApi(`/orders/user/${userId}`);
+}
+
+export async function fetchOrderById(orderId) {
+  return fetchApi(`/orders/${orderId}`);
 }
 
 export async function fetchTestimonials() {
@@ -106,6 +112,16 @@ export async function addOrder(order) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(order),
+  });
+}
+
+export async function updateOrderStatus(orderId, status, paymentStatus) {
+  return fetchApi(`/orders/${orderId}/status`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ status, paymentStatus }),
   });
 }
 
@@ -155,7 +171,7 @@ export async function searchProducts(query) {
 }
 
 export async function addFarmerProduct(farmerId, productData) {
-  return fetchApi('/farmer/products', {
+  return fetchApi('/products', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -169,8 +185,8 @@ export async function addFarmerProduct(farmerId, productData) {
 
 export async function getFarmerProducts(farmerId) {
   if (!farmerId) {
-    return fetchApi('/farmer/products');
+    return fetchApi('/products');
   }
-  return fetchApi(`/farmer/products/${encodeURIComponent(farmerId)}`);
+  return fetchApi(`/products/${encodeURIComponent(farmerId)}`);
 }
 

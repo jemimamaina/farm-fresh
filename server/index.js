@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const apiRouter = require('./routes/api');
+const apiRouter = require('./routes');
 const cors = require('cors');
 const { initializePool } = require('./db');
 

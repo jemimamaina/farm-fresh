@@ -5,6 +5,13 @@ import {
   searchProducts,
   fetchTestimonials,
   getProductById,
+  fetchOrders,
+  fetchUserOrders,
+  fetchOrderById,
+  addOrder,
+  updateOrderStatus,
+  registerUser,
+  loginUser,
 } from './api.js';
 
 const CURRENT_USER_KEY = 'farmfresh_current_user';
@@ -16,9 +23,9 @@ let routingInitialized = false;
 
 // Generate UUID v4 for product IDs
 function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
@@ -217,6 +224,9 @@ function renderFromHash() {
     case '#farmer':
       renderFarmerDashboard();
       break;
+    case '#orders':
+      renderOrders();
+      break;
     default:
       renderHome();
   }
@@ -235,7 +245,9 @@ export function renderNav() {
       ? '<a href="#farmer">Farmer</a>'
       : user.role === 'admin'
         ? '<a href="#admin">Admin</a>'
-        : ''
+        : user.role === 'consumer'
+          ? '<a href="#orders">My Orders</a>'
+          : ''
     : '';
 
   const authLinks = user
@@ -431,9 +443,23 @@ function loadProducts() {
   });
 }
 
+function renderEmptyProductsHTML() {
+  return `
+      <div class="empty-products-container">
+        <div class="empty-products-content">
+          <div class="empty-products-icon">
+            🥕
+          </div>
+          <h3>No Products Found</h3>
+          <p>We couldn't find any products matching your criteria. Fresh produce from Kenyan farmers will be available soon!</p>
+        </div>
+      </div>
+   `;
+}
+
 function renderProductGridHTML(items) {
   if (!items || items.length === 0) {
-    return '<p>No products are available at the moment.</p>';
+    return renderEmptyProductsHTML()
   }
 
   return items
@@ -551,9 +577,7 @@ function loadMarketplaceProducts() {
     }
 
     if (filtered.length === 0) {
-      container.innerHTML =
-        '<p>No products match your search or filter. Try another keyword or category.</p>';
-      return;
+      container.innerHTML= renderEmptyProductsHTML()
     }
 
     container.innerHTML = renderProductGridHTML(filtered);
@@ -605,33 +629,27 @@ export function renderLogin() {
     const password = form.password.value;
     const msg = document.getElementById('login-message');
 
-    fetchUsers().then((users) => {
-      const user = users.find((u) => u.email === email);
-      if (!user) {
-        msg.textContent = 'No user found';
+    // Authenticate user via API
+    loginUser(email, password)
+      .then((user) => {
+        setCurrentUser(user);
+        msg.textContent = `Logged in as ${user.name} (${user.role})`;
+        msg.style.color = 'green';
+
+        setTimeout(() => {
+          if (user.role === 'farmer') {
+            window.location.hash = '#farmer';
+          } else {
+            window.location.hash = '#home';
+          }
+        }, 800);
+      })
+      .catch((error) => {
+        console.error('Login error:', error);
+        msg.textContent =
+          error.message || 'Login failed. Please check your credentials.';
         msg.style.color = 'red';
-        return;
-      }
-
-      // If the mock user has a password, validate it; otherwise allow login (existing seed users)
-      if (user.password && user.password !== password) {
-        msg.textContent = 'Invalid password';
-        msg.style.color = 'red';
-        return;
-      }
-
-      setCurrentUser(user);
-      msg.textContent = `Logged in as ${user.name} (${user.role})`;
-      msg.style.color = 'green';
-
-      setTimeout(() => {
-        if (user.role === 'farmer') {
-          window.location.hash = '#farmer';
-        } else {
-          window.location.hash = '#home';
-        }
-      }, 800);
-    });
+      });
   });
 }
 
@@ -695,52 +713,41 @@ function handleRegister(e) {
     return;
   }
 
-  // Check if email already exists
-  fetchUsers().then((users) => {
-    const existingUser = users.find((u) => u.email === email);
-    if (existingUser) {
-      messageDiv.textContent = 'Email already registered.';
+  // Register user via API
+  registerUser({
+    name,
+    email,
+    password,
+    role,
+    contact: '',
+    farmLocation: role === 'farmer' ? '' : null,
+    deliveryAddress: role === 'consumer' ? '' : null,
+  })
+    .then((newUser) => {
+      // Auto-login after registration
+      setCurrentUser(newUser);
+
+      messageDiv.textContent = `Registration successful! Welcome ${name} (${role}). Redirecting...`;
+      messageDiv.style.color = 'green';
+
+      // Clear form
+      e.target.reset();
+
+      // Redirect after a short delay
+      setTimeout(() => {
+        if (role === 'farmer') {
+          window.location.hash = '#farmer';
+        } else {
+          window.location.hash = '#home';
+        }
+      }, 1200);
+    })
+    .catch((error) => {
+      console.error('Registration error:', error);
+      messageDiv.textContent =
+        error.message || 'Registration failed. Please try again.';
       messageDiv.style.color = 'red';
-      return;
-    }
-
-    // Mock registration - in a real app, this would be an API call
-    const newUser = {
-      id: generateUUID(),
-      name,
-      email,
-      password,
-      role,
-      // Add role-specific fields if needed
-      ...(role === 'farmer' && { farmLocation: '' }),
-      ...(role === 'consumer' && { deliveryAddress: '' }),
-    };
-
-    // Store in localStorage for persistence (mock)
-    const registeredUsers = JSON.parse(
-      localStorage.getItem('registered_users') || '[]',
-    );
-    registeredUsers.push(newUser);
-    localStorage.setItem('registered_users', JSON.stringify(registeredUsers));
-
-    // Auto-login after registration
-    setCurrentUser(newUser);
-
-    messageDiv.textContent = `Registration successful! Welcome ${name} (${role}). Redirecting...`;
-    messageDiv.style.color = 'green';
-
-    // Clear form
-    e.target.reset();
-
-    // Redirect after a short delay
-    setTimeout(() => {
-      if (role === 'farmer') {
-        window.location.hash = '#farmer';
-      } else {
-        window.location.hash = '#home';
-      }
-    }, 1200);
-  });
+    });
 }
 
 // simple cart stored in localStorage
@@ -855,7 +862,7 @@ function updateCartQuantity(productId, newQty) {
     item.qty = newQty;
     saveCart(cart, user.id);
     renderCart(); // Re-render cart to update totals
-    refreshNav()
+    refreshNav();
   }
 }
 
@@ -881,7 +888,7 @@ function showPaymentModal(cartItems, total) {
       <div class="order-summary">
         <h4>Order Summary</h4>
         <ul>
-          ${cartItems.map(item => `<li>${item.name} x ${item.qty} - KES ${item.price * item.qty}</li>`).join('')}
+          ${cartItems.map((item) => `<li>${item.name} x ${item.qty} - KES ${item.price * item.qty}</li>`).join('')}
         </ul>
         <p><strong>Total: KES ${total}</strong></p>
       </div>
@@ -900,29 +907,52 @@ function showPaymentModal(cartItems, total) {
     modal.remove();
   });
 
-  document.getElementById('payment-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    // Fake payment processing
-    notify.info('Processing payment...');
-    setTimeout(() => {
-      notify.success('Payment successful! Order placed.');
-      // Clear cart
-      const user = getCurrentUser();
-      if (user) {
-        saveCart([], user.id);
-        refreshNav();
+  document
+    .getElementById('payment-form')
+    .addEventListener('submit', async (e) => {
+      e.preventDefault();
+      // Fake payment processing
+      notify.info('Processing payment...');
+
+      try {
+        // Create order record
+        const user = getCurrentUser();
+        const orderData = {
+          consumerId: user.id,
+          items: cartItems.map((item) => ({
+            productId: item.id,
+            quantity: item.qty,
+          })),
+          total: total,
+        };
+
+        const order = await addOrder(orderData);
+
+        // Update order status to paid after successful payment
+        await updateOrderStatus(order.id, 'confirmed', 'paid');
+
+        setTimeout(() => {
+          notify.success('Payment successful! Order placed.');
+          // Clear cart
+          if (user) {
+            saveCart([], user.id);
+            refreshNav();
+          }
+          modal.remove();
+          // Redirect to orders page
+          window.location.hash = '#orders';
+        }, 2000);
+      } catch (error) {
+        console.error('Error creating order:', error);
+        notify.error('Payment failed. Please try again.');
       }
-      modal.remove();
-      // Redirect to home
-      window.location.hash = '#home';
-    }, 2000);
-  });
+    });
 }
 
 export function renderCart() {
   const main = document.getElementById('main');
   const user = getCurrentUser();
-  
+
   if (!user) {
     main.innerHTML = `
       <div class="cart-status-container">
@@ -1411,8 +1441,7 @@ export function renderCategoryPage(category) {
   getProductsByCategory(category).then((items) => {
     const container = document.getElementById('category-products');
     if (items.length === 0) {
-      container.innerHTML = '<p>No products found in this category.</p>';
-      return;
+     return renderEmptyProductsHTML()
     }
     container.innerHTML = renderProductGridHTML(items);
     attachProductClickHandlers();
@@ -1427,11 +1456,204 @@ export function renderSearchResults(query) {
   searchProducts(decodedQuery).then((items) => {
     const container = document.getElementById('search-products');
     if (items.length === 0) {
-      container.innerHTML = '<p>No products found. Try a different search.</p>';
-      return;
+      return renderEmptyProductsHTML()
     }
     container.innerHTML = renderProductGridHTML(items);
     attachProductClickHandlers();
   });
   attachSearchEventListeners();
+}
+
+export function renderOrders() {
+  const main = document.getElementById('main');
+  const user = getCurrentUser();
+
+  if (!user) {
+    main.innerHTML = `
+      <div class="access-denied-container">
+        <div class="access-denied-content">
+          <h2>Please Login</h2>
+          <p>You need to be logged in to view your orders.</p>
+          <a href="#login" class="btn btn-primary">Login</a>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (user.role !== 'consumer') {
+    main.innerHTML = `
+      <div class="access-denied-container">
+        <div class="access-denied-content">
+          <h2>Access Denied</h2>
+          <p>This page is only available to consumers. You are logged in as <strong>${user.role}</strong>.</p>
+          <a href="#home" class="btn btn-secondary">Go to Home</a>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  main.innerHTML = `
+    <h2>My Orders</h2>
+    <div id="orders-container" class="orders-container">
+      <div class="loading">Loading your orders...</div>
+    </div>
+  `;
+
+  // Fetch orders and products
+  Promise.all([fetchUserOrders(user.id), fetchProducts()])
+    .then(([userOrders, allProducts]) => {
+      console.log({userOrders, allProducts})
+      const container = document.getElementById('orders-container');
+
+      if (userOrders.length === 0) {
+        container.innerHTML = `
+        <div class="no-orders">
+          <h3>No orders yet</h3>
+          <p>You haven't placed any orders yet. Start shopping to see your orders here!</p>
+          <a href="#marketplace" class="btn btn-primary">Browse Products</a>
+        </div>
+      `;
+        return;
+      }
+
+      // Create a map of product IDs to product details for quick lookup
+      const productMap = {};
+      allProducts.forEach((product) => {
+        productMap[product.id] = product;
+      });
+
+      // Orders are already sorted by created_at DESC from the API
+      container.innerHTML = userOrders
+        .map((order) => {
+          // Calculate total from order items
+          let total = 0;
+          let itemCount = 0;
+
+          if (order.items && Array.isArray(order.items)) {
+            order.items.forEach((item) => {
+              const product = productMap[item.product_id];
+              if (product) {
+                total += Number(product.price) * item.quantity;
+                itemCount += item.quantity;
+              }
+            });
+          }
+
+          return `
+        <div class="order-card">
+          <div class="order-header">
+            <div class="order-info">
+              <h3>Order #${order.id.slice(-8)}</h3>
+              <p class="order-date">Placed on ${new Date(order.created_at).toLocaleDateString()}</p>
+            </div>
+            <div class="order-status">
+              <span class="status status-${order.status}">${order.status}</span>
+              <span class="payment-status status-${order.payment_status}">${order.payment_status}</span>
+            </div>
+          </div>
+          <div class="order-details">
+            <p><strong>Total:</strong> KES ${total.toFixed(2)}</p>
+            <p><strong>Items:</strong> ${itemCount} item(s)</p>
+          </div>
+          <div class="order-actions">
+            <button class="btn btn-secondary view-details-btn" data-order-id="${order.id}">View Details</button>
+          </div>
+        </div>
+      `;
+        })
+        .join('');
+
+      // Add event listeners for view details buttons
+      container.querySelectorAll('.view-details-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          const orderId = e.target.dataset.orderId;
+          showOrderDetails(orderId, productMap);
+        });
+      });
+    })
+    .catch((error) => {
+      console.error('Error fetching orders:', error);
+      const container = document.getElementById('orders-container');
+      container.innerHTML = `
+      <div class="error-message">
+        <h3>Failed to load orders</h3>
+        <p>There was an error loading your orders. Please try again later.</p>
+        <button onclick="renderOrders()" class="btn btn-secondary">Retry</button>
+      </div>
+    `;
+    });
+}
+
+function showOrderDetails(orderId, productMap) {
+  fetchOrderById(orderId)
+    .then((order) => {
+      if (!order) {
+        notify.error('Order not found');
+        return;
+      }
+
+      let orderItemsHTML = '';
+      let total = 0;
+
+      if (order.items && Array.isArray(order.items)) {
+        orderItemsHTML = order.items
+          .map((item) => {
+            const product = productMap[item.product_id]; // Note: database uses product_id
+            if (product) {
+              const itemTotal = product.price * item.quantity;
+              total += itemTotal;
+              return `
+            <div class="order-item">
+              <img src="${product.image || 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=50&h=50&fit=crop'}" alt="${product.name}" class="order-item-image">
+              <div class="order-item-details">
+                <h4>${product.name}</h4>
+                <p>KES ${product.price} x ${item.quantity} = KES ${itemTotal.toFixed(2)}</p>
+              </div>
+            </div>
+          `;
+            }
+            return '';
+          })
+          .join('');
+      }
+
+      const modal = document.createElement('div');
+      modal.className = 'order-details-modal';
+      modal.innerHTML = `
+      <div class="order-details-content">
+        <div class="order-details-header">
+          <h3>Order Details - #${order.id.slice(-8)}</h3>
+          <button id="close-order-details" class="close-btn">&times;</button>
+        </div>
+        <div class="order-details-body">
+          <div class="order-info-section">
+            <p><strong>Order Date:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+            <p><strong>Status:</strong> <span class="status status-${order.status}">${order.status}</span></p>
+            <p><strong>Payment Status:</strong> <span class="status status-${order.payment_status}">${order.payment_status}</span></p>
+          </div>
+          <div class="order-items-section">
+            <h4>Items Ordered</h4>
+            ${orderItemsHTML}
+          </div>
+          <div class="order-total">
+            <p><strong>Total: KES ${total.toFixed(2)}</strong></p>
+          </div>
+        </div>
+      </div>
+    `;
+
+      document.body.appendChild(modal);
+
+      document
+        .getElementById('close-order-details')
+        .addEventListener('click', () => {
+          modal.remove();
+        });
+    })
+    .catch((error) => {
+      console.error('Error fetching order details:', error);
+      notify.error('Failed to load order details');
+    });
 }

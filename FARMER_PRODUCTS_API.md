@@ -7,24 +7,24 @@ Replaced all instances of `getLocalFarmerProducts()` with API calls to enable pe
 
 ### New API Endpoints (server/routes/api.js)
 
-#### 1. GET /farmer/products
+#### 1. GET /products
 Retrieves all farmer products from the database.
 ```
-GET /api/farmer/products
+GET /api/products
 Response: Array of product objects
 ```
 
-#### 2. GET /farmer/products/:farmerId
+#### 2. GET /products/:farmerId
 Retrieves products for a specific farmer.
 ```
-GET /api/farmer/products/{farmerId}
+GET /api/products/{farmerId}
 Response: Array of product objects created by the farmer
 ```
 
-#### 3. POST /farmer/products
+#### 3. POST /products
 Creates a new farmer product in the database.
 ```
-POST /api/farmer/products
+POST /api/products
 Body: {
   farmerId: string (UUID),
   name: string (required),
@@ -43,14 +43,14 @@ Response: 201 Created with the new product object
 
 #### 1. getLocalFarmerProducts() - Now Async
 - **Before**: Synchronous function fetching from localStorage
-- **After**: Async function that calls `GET /farmer/products` API
+- **After**: Async function that calls `GET /products` API
 - **Fallback**: If API fails, falls back to localStorage for backwards compatibility
 - Returns all farmer products from the database
 
 ```javascript
 async function getLocalFarmerProducts() {
   try {
-    const farmerProducts = await fetchApi('/farmer/products');
+    const farmerProducts = await fetchApi('/products');
     return Array.isArray(farmerProducts) ? farmerProducts : [];
   } catch (error) {
     // Fallback to localStorage if API fails
@@ -74,7 +74,7 @@ All these functions now properly `await` the promise returned by `getLocalFarmer
 **addFarmerProduct(farmerId, productData)**
 ```javascript
 export async function addFarmerProduct(farmerId, productData) {
-  return fetchApi('/farmer/products', {
+  return fetchApi('/products', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ farmerId, ...productData })
@@ -87,9 +87,9 @@ Creates a new farmer product in the database. Use this instead of directly writi
 ```javascript
 export async function getFarmerProducts(farmerId) {
   if (!farmerId) {
-    return fetchApi('/farmer/products');
+    return fetchApi('/products');
   }
-  return fetchApi(`/farmer/products/${encodeURIComponent(farmerId)}`);
+  return fetchApi(`/products/${encodeURIComponent(farmerId)}`);
 }
 ```
 Retrieves products for a specific farmer or all farmer products.

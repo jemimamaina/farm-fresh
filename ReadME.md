@@ -100,14 +100,20 @@ The server reads these environment variables:
 
 ### Create the database
 
-Run the SQL schema and seed script located at `server/data/sql_script.sql`:
+First, create the database:
 
 ```bash
-mysql -u root -p
-CREATE DATABASE farm_fresh;
-USE farm_fresh;
-SOURCE server/data/sql_script.sql;
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS farm_fresh;"
 ```
+
+Then run the migration script to create tables and seed data:
+
+```bash
+cd server
+npm run migrate
+```
+
+This will execute all SQL queries from `server/data/sql_script.sql` and provide detailed progress output.
 
 ### Run locally
 
@@ -148,6 +154,7 @@ From `client/`:
 From `server/`:
 
 - `npm run dev`
+- `npm run migrate` — run database migration
 - `npm start`
 
 ## 📖 Usage
@@ -197,9 +204,9 @@ The current backend API exposes these endpoints under `/api`.
 - `GET /api/testimonials`
 
 ### Farmer Products
-- `GET /api/farmer/products`
-- `GET /api/farmer/products/:farmerId`
-- `POST /api/farmer/products`
+- `GET /api/products`
+- `GET /api/products/:farmerId`
+- `POST /api/products`
 
 ## 📁 Data
 

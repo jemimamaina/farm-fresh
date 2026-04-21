@@ -17,6 +17,7 @@ CREATE TABLE users (
   role VARCHAR(50) NOT NULL,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
   contact VARCHAR(20),
   farm_location VARCHAR(255),
   delivery_address VARCHAR(255),
@@ -79,23 +80,23 @@ CREATE TABLE testimonials (
 -- ============================================
 -- INSERT DATA - Users
 -- ============================================
-INSERT INTO users (id, role, name, email, contact, farm_location, is_featured) VALUES
-('550e8400-e29b-41d4-a716-446655440001', 'farmer', 'Joseph Mwangi', 'joseph@example.com', '0700123456', 'Kiambu', TRUE);
+INSERT INTO users (id, role, name, email, password, contact, farm_location, is_featured) VALUES
+('550e8400-e29b-41d4-a716-446655440001', 'farmer', 'Joseph Mwangi', 'joseph@example.com', 'password123', '0700123456', 'Kiambu', TRUE);
 
-INSERT INTO users (id, role, name, email, contact, farm_location) VALUES
-('550e8400-e29b-41d4-a716-446655440002', 'farmer', 'Peter Kipchoge', 'peter@example.com', '0722334455', 'Kericho');
+INSERT INTO users (id, role, name, email, password, contact, farm_location) VALUES
+('550e8400-e29b-41d4-a716-446655440002', 'farmer', 'Peter Kipchoge', 'peter@example.com', 'password123', '0722334455', 'Kericho');
 
-INSERT INTO users (id, role, name, email, contact, farm_location) VALUES
-('550e8400-e29b-41d4-a716-446655440003', 'farmer', 'Jane Wanjiru', 'jane@example.com', '0733445566', 'Mombasa');
+INSERT INTO users (id, role, name, email, password, contact, farm_location) VALUES
+('550e8400-e29b-41d4-a716-446655440003', 'farmer', 'Jane Wanjiru', 'jane@example.com', 'password123', '0733445566', 'Mombasa');
 
-INSERT INTO users (id, role, name, email, contact, delivery_address) VALUES
-('550e8400-e29b-41d4-a716-446655440004', 'consumer', 'Alice Njeri', 'alice@example.com', '0744556677', 'Nairobi');
+INSERT INTO users (id, role, name, email, password, contact, delivery_address) VALUES
+('550e8400-e29b-41d4-a716-446655440004', 'consumer', 'Alice Njeri', 'alice@example.com', 'password123', '0744556677', 'Nairobi');
 
-INSERT INTO users (id, role, name, email, contact, delivery_address) VALUES
-('550e8400-e29b-41d4-a716-446655440005', 'consumer', 'David Okoro', 'david@example.com', '0755667788', 'Nakuru');
+INSERT INTO users (id, role, name, email, password, contact, delivery_address) VALUES
+('550e8400-e29b-41d4-a716-446655440005', 'consumer', 'David Okoro', 'david@example.com', 'password123', '0755667788', 'Nakuru');
 
-INSERT INTO users (id, role, name, email, contact) VALUES
-('550e8400-e29b-41d4-a716-446655440006', 'admin', 'Admin User', 'admin@farmfresh.com', '0799999999');
+INSERT INTO users (id, role, name, email, password, contact) VALUES
+('550e8400-e29b-41d4-a716-446655440006', 'admin', 'Admin User', 'admin@farmfresh.com', 'admin123', '0799999999');
 
 -- ============================================
 -- INSERT DATA - Products
