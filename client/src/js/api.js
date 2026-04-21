@@ -86,9 +86,9 @@ export async function fetchUsers() {
 }
 
 export async function fetchProducts() {
-  const staticProducts = await fetchApi('/products');
+  // const staticProducts = await fetchApi('/products');
   const farmerProducts = await getLocalFarmerProducts();
-  return [...staticProducts, ...farmerProducts];
+  return  farmerProducts;
 }
 
 export async function fetchOrders() {

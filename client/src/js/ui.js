@@ -787,6 +787,7 @@ function addToCart(product, quantity = 1) {
   }
   saveCart(cart, user.id);
   notify.success(`Added ${quantity} ${product.name}(s) to cart`);
+  refreshNav();
 }
 
 // Chat functionality
@@ -854,6 +855,7 @@ function updateCartQuantity(productId, newQty) {
     item.qty = newQty;
     saveCart(cart, user.id);
     renderCart(); // Re-render cart to update totals
+    refreshNav()
   }
 }
 
@@ -864,6 +866,57 @@ function removeFromCart(productId) {
   const filteredCart = cart.filter((c) => c.id !== productId);
   saveCart(filteredCart, user.id);
   renderCart(); // Re-render cart
+  refreshNav();
+}
+
+function showPaymentModal(cartItems, total) {
+  const modal = document.createElement('div');
+  modal.className = 'payment-modal';
+  modal.innerHTML = `
+    <div class="payment-modal-content">
+      <div class="payment-modal-header">
+        <h3>Complete Your Order</h3>
+        <button id="close-payment" class="close-btn">&times;</button>
+      </div>
+      <div class="order-summary">
+        <h4>Order Summary</h4>
+        <ul>
+          ${cartItems.map(item => `<li>${item.name} x ${item.qty} - KES ${item.price * item.qty}</li>`).join('')}
+        </ul>
+        <p><strong>Total: KES ${total}</strong></p>
+      </div>
+      <form id="payment-form">
+        <div class="payment-fields">
+          <label for="phone">M-Pesa Phone Number:</label>
+          <input type="tel" id="phone" name="phone" placeholder="0712345678" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Pay Now</button>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  document.getElementById('close-payment').addEventListener('click', () => {
+    modal.remove();
+  });
+
+  document.getElementById('payment-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    // Fake payment processing
+    notify.info('Processing payment...');
+    setTimeout(() => {
+      notify.success('Payment successful! Order placed.');
+      // Clear cart
+      const user = getCurrentUser();
+      if (user) {
+        saveCart([], user.id);
+        refreshNav();
+      }
+      modal.remove();
+      // Redirect to home
+      window.location.hash = '#home';
+    }, 2000);
+  });
 }
 
 export function renderCart() {
@@ -957,9 +1010,11 @@ export function renderCart() {
   });
 
   document.getElementById('checkout-btn').addEventListener('click', () => {
-    notify.info(
-      'Checkout functionality will be implemented with M-Pesa integration',
-    );
+    const user = getCurrentUser();
+    if (!user) return;
+    const items = loadCart(user.id);
+    const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+    showPaymentModal(items, total);
   });
 }
 
